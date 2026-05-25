@@ -1,0 +1,49 @@
+﻿seed: 2025
+
+clip:
+  model_name: ViT-L-14
+  pretrained: openai
+
+data:
+  annotation_file: data/coco/cache/coco_all.json
+  image_root: data/coco/images
+  train_split: train
+  test_split: test
+
+model:
+  dim: 768
+  num_visual_slots: 12
+  num_text_slots: 12
+  num_proto: 48
+  epsilon: 0.07
+  sinkhorn_iters: 15
+  beta: 0.10
+  debias_margin: 0.05
+  tau_proto: 0.10
+  assign_temp: 0.50
+  topk_assign: 2
+
+loss:
+  lambda_gran: 0.010
+  lambda_debias: 0.005
+  lambda_proto: 0.0005
+  lambda_cons: 0.001
+
+train:
+  epochs: 8
+  steps_per_epoch: 1500
+  batch_size: 32
+  num_workers: 4
+  lr: 0.0001
+  weight_decay: 0.01
+  grad_clip: 1.0
+  tau_contrastive: 0.07
+  allpairs_chunk: 128
+
+eval:
+  rerank_topk: 128
+  rerank_chunk: 128
+  image_batch_size: 64
+  text_batch_size: 256
+  num_workers: 4
+

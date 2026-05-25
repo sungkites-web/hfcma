@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local data and generated experiment artifacts
+data/
+datasets/
+cache/
+features/
+outputs/
+runs/
+logs/
+checkpoints/
+weights/
+*.pt
+*.pth
+*.pth.tar
+*.ckpt
+*.npz
+*.npy
+*.pkl
+*.pickle
+*.jsonl
+
+# System and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Credentials and local machine settings
+.env
+*.pem
+*.key
+secrets.*
+local_*.yaml
+local_*.yml
