@@ -7,7 +7,8 @@ def recall_at_k(sim: torch.Tensor, positives: list[list[int]], ks: Iterable[int]
     out = {}
     for k in ks:
         hits = 0
-        topk = sim.topk(k, dim=1).indices.cpu().tolist()
+        effective_k = min(k, sim.size(1))
+        topk = sim.topk(effective_k, dim=1).indices.cpu().tolist()
         for row_idx, retrieved in enumerate(topk):
             if set(retrieved).intersection(positives[row_idx]):
                 hits += 1

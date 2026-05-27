@@ -23,8 +23,12 @@ hfcma-public/
 |   |-- datasets/            # JSON retrieval dataset loader
 |   |-- evaluation/          # retrieval metrics
 |   |-- models/              # HFCMA modules and OpenCLIP wrapper
+|   |-- losses.py            # retrieval and auxiliary training losses
+|   |-- rerank.py            # top-K fine-grained reranking utilities
 |   |-- train.py             # training and validation entry point
 |   `-- evaluate.py          # evaluation-only entry point
+|-- tests/                   # lightweight correctness checks
+|-- tools/                   # annotation conversion utilities
 |-- requirements.txt
 |-- pyproject.toml
 `-- README.md
@@ -71,6 +75,14 @@ data/
 
 See `docs/DATA.md` for supported fields and evaluation protocol notes.
 
+If your annotations follow the Karpathy-style JSON format, convert them with:
+
+```bash
+python tools/convert_retrieval_json.py \
+  --input path/to/dataset_karpathy.json \
+  --output data/flickr30k/cache/flickr30k_all.json
+```
+
 ## Training
 
 Flickr30K:
@@ -102,6 +114,16 @@ bash scripts/eval_coco.sh
 ```
 
 Evaluation computes global CLIP similarities and reranks top-ranked candidates with the HFCMA fine-grained OT score.
+
+## Sanity Checks
+
+Run the lightweight tests before launching a full experiment:
+
+```bash
+pytest tests
+```
+
+These tests verify retrieval-metric computation and the marginal constraints of the Sinkhorn transport plan.
 
 ## Main Configuration
 

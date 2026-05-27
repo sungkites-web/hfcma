@@ -9,15 +9,15 @@ __pycache__/
 venv/
 
 # Local data and generated experiment artifacts
-data/
-datasets/
-cache/
-features/
-outputs/
-runs/
-logs/
-checkpoints/
-weights/
+/data/
+/datasets/
+/cache/
+/features/
+/outputs/
+/runs/
+/logs/
+/checkpoints/
+/weights/
 *.pt
 *.pth
 *.pth.tar

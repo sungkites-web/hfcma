@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 from hfcma.datasets import RetrievalJsonDataset, collate_retrieval_batch
 from hfcma.evaluation import retrieval_metrics
+from hfcma.losses import bidirectional_contrastive_loss, weighted_hfcma_loss
 from hfcma.models import HFCMA
 from hfcma.models.clip_feature_extractor import OpenCLIPFeatureExtractor
 
@@ -27,12 +28,6 @@ def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-
-
-def contrastive_loss(score_matrix: torch.Tensor, tau: float = 0.07) -> torch.Tensor:
-    labels = torch.arange(score_matrix.size(0), device=score_matrix.device)
-    logits = score_matrix / tau
-    return 0.5 * (F.cross_entropy(logits, labels) + F.cross_entropy(logits.t(), labels))
 
 
 def build_hfcma(cfg: Dict[str, Any], device: torch.device) -> HFCMA:
@@ -91,15 +86,19 @@ def train_one_epoch(
             regions, phrases, chunk_size=train_cfg["allpairs_chunk"]
         )
         score_matrix = global_scores + model.beta * fine_scores
-        retrieval = contrastive_loss(score_matrix, tau=train_cfg["tau_contrastive"])
+        retrieval = bidirectional_contrastive_loss(score_matrix, tau=train_cfg["tau_contrastive"])
 
         matched_out = model(patch_feats, token_feats, image_global, text_global)
-        loss = (
-            retrieval
-            + loss_cfg["lambda_gran"] * matched_out.l_gran
-            + loss_cfg["lambda_debias"] * matched_out.l_debias
-            + loss_cfg["lambda_proto"] * matched_out.l_proto
-            + loss_cfg["lambda_cons"] * matched_out.l_cons
+        loss = weighted_hfcma_loss(
+            retrieval,
+            matched_out.l_gran,
+            matched_out.l_debias,
+            matched_out.l_proto,
+            matched_out.l_cons,
+            lambda_gran=loss_cfg["lambda_gran"],
+            lambda_debias=loss_cfg["lambda_debias"],
+            lambda_proto=loss_cfg["lambda_proto"],
+            lambda_cons=loss_cfg["lambda_cons"],
         )
 
         optimizer.zero_grad(set_to_none=True)
